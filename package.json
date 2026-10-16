@@ -7,7 +7,7 @@
     },
     "displayName": "DTDubs Delphi for VSCode",
     "description": "Delphi support in VSCode for modern Delphi as well as legacy versions. (Requires compiler and SPL binaries for the specific version of Delphi code you intend to work with.)",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "license": "MIT",
     "engines": {
         "vscode": "^1.91.0"
