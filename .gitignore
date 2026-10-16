@@ -1,0 +1,9 @@
+node_modules
+.agents
+.vscode-test
+.vscode
+.idea
+*.vsix
+lib
+out
+*.tsbuildinfo

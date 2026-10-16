@@ -1,0 +1,117 @@
+name: Release & Publish Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Release & Publish VSIX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run validation gate (types, format, lint, unit tests)
+        run: npm run check:all
+
+      - name: Resolve version and verify tag match
+        id: meta
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == v* ]]; then
+            TAG_VERSION="${REF_NAME#v}"
+            if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+              echo "::error::Git tag ($REF_NAME) does not match package.json version ($PKG_VERSION)"
+              exit 1
+            fi
+          fi
+          VSIX_PATH="out/${PKG_NAME}-${PKG_VERSION}.vsix"
+          echo "version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "vsix_path=${VSIX_PATH}" >> "$GITHUB_OUTPUT"
+
+      - name: Package VSIX bundle
+        run: |
+          mkdir -p out
+          npm run package
+
+      - name: Upload VSIX workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: delphi-vscode-${{ steps.meta.outputs.version }}-vsix
+          path: ${{ steps.meta.outputs.vsix_path }}
+          if-no-files-found: error
+
+      - name: Create or update GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          VSIX_PATH: ${{ steps.meta.outputs.vsix_path }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const ver = process.env.VERSION.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const changelog = fs.existsSync("CHANGELOG.md") ? fs.readFileSync("CHANGELOG.md", "utf8") : "";
+            const re = new RegExp(`^## \\[${ver}\\][^\\n]*\\n([\\s\\S]*?)(?=^## \\[|\\Z)`, "m");
+            const match = re.exec(changelog);
+            const notes = match && match[1] ? match[1].trim() : "";
+            if (notes) {
+              fs.writeFileSync("release-notes.md", notes, "utf8");
+            }
+          '
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" "$VSIX_PATH" --clobber
+          else
+            if [ -s release-notes.md ]; then
+              gh release create "$TAG_NAME" "$VSIX_PATH" --title "$TAG_NAME" --notes-file release-notes.md
+            else
+              gh release create "$TAG_NAME" "$VSIX_PATH" --title "$TAG_NAME" --generate-notes
+            fi
+          fi
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX_PATH: ${{ steps.meta.outputs.vsix_path }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::notice::Skipping VS Code Marketplace publish (VSCE_PAT secret is not configured)."
+            echo "- **VS Code Marketplace**: Skipped (\`VSCE_PAT\` secret not set)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          npx @vscode/vsce publish --packagePath "$VSIX_PATH" -p "$VSCE_PAT"
+          echo "- **VS Code Marketplace**: Published \`$VSIX_PATH\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish to Open VSX Registry (Cursor)
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+          VSIX_PATH: ${{ steps.meta.outputs.vsix_path }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "::notice::Skipping Open VSX publish (OVSX_PAT secret is not configured)."
+            echo "- **Open VSX Registry**: Skipped (\`OVSX_PAT\` secret not set)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          npx ovsx publish "$VSIX_PATH" -p "$OVSX_PAT"
+          echo "- **Open VSX Registry**: Published \`$VSIX_PATH\`" >> "$GITHUB_STEP_SUMMARY"

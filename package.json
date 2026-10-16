@@ -1,0 +1,283 @@
+{
+    "name": "delphi-vscode",
+    "publisher": "DTWaling",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dtwaling/delphi-vscode-ext"
+    },
+    "displayName": "Delphi",
+    "description": "Delphi support for VSCode",
+    "version": "1.2.1",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.91.0"
+    },
+    "extensionKind": [
+        "workspace"
+    ],
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": false,
+            "description": "The extension launches DelphiLSP and generates/runs build scripts based on workspace files and settings."
+        }
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./lib/main",
+    "contributes": {
+        "languages": [
+            {
+                "id": "objectpascal",
+                "aliases": [
+                    "Delphi",
+                    "pascal"
+                ],
+                "extensions": [
+                    ".pas",
+                    ".pp",
+                    ".inc",
+                    ".dpr",
+                    ".dpk"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "objectpascal",
+                "scopeName": "source.pascal",
+                "path": "./syntaxes/pascal.tmLanguage"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "objectpascal",
+                "path": "./snippets/pascal.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Delphi",
+            "properties": {
+                "delphi.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "scope": "resource",
+                    "description": "Enable or disable the Delphi extension language features and diagnostics in the current workspace."
+                },
+                "delphi.bin": {
+                    "type": "string",
+                    "default": "",
+                    "scope": "resource",
+                    "description": "Path to Delphi `bin` folder (containing DelphiLSP.exe for Delphi 11+, or dcc32.exe for legacy versions such as Delphi 6). Defaults to newest installation."
+                },
+                "delphi.serverType": {
+                    "type": "string",
+                    "default": "controller",
+                    "enum": [
+                        "controller",
+                        "agent",
+                        "linter"
+                    ],
+                    "enumDescriptions": [
+                        "Mutli process mode with <agentCount> sub processes. Error Insight available when <agentCount> >= 2",
+                        "Single process mode without Error Insight",
+                        "Single process mode with Error Insight only; without code completion or other language features"
+                    ],
+                    "description": "Defines the operation mode"
+                },
+                "delphi.agentCount": {
+                    "type": "integer",
+                    "default": 2,
+                    "minimum": 1,
+                    "maximum": 2,
+                    "description": "Defines the number of sub processes (agents) when serverType is controller. If agentCount > 1 then one process will be dedicated to Error Insight"
+                },
+                "delphi.logModes": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Bit mask defining logging modes [1 (RawInputMessage), 2 (RawOutputMessage), 4 (Queue), 8 (Processor), 16 (Server), 32 (AgentFacade), 64 (DCC related), 128 (LSP Inspector traces)]"
+                },
+                "delphi.configFile": {
+                    "type": "string",
+                    "default": "",
+                    "scope": "resource",
+                    "description": "File URI or path of current project config (.delphilsp.json for Delphi 11+, or .dpr/.dof/.cfg for legacy Delphi)"
+                },
+                "delphi.legacyDiagnosticsSeverity": {
+                    "type": "string",
+                    "default": "errors",
+                    "scope": "resource",
+                    "enum": [
+                        "errors",
+                        "warnings",
+                        "hints",
+                        "off"
+                    ],
+                    "enumDescriptions": [
+                        "Report only Fatal and Error messages from dcc32.exe",
+                        "Report Fatal, Error, and Warning messages from dcc32.exe",
+                        "Report all messages (Fatal, Error, Warning, and Hint) from dcc32.exe",
+                        "Disable background dcc32.exe compiler diagnostics"
+                    ],
+                    "description": "Controls which compiler message severities are shown in Legacy (Delphi 6 / dcc32.exe) mode"
+                },
+                "delphi.legacyDiagnosticsTrigger": {
+                    "type": "string",
+                    "default": "openAndSave",
+                    "scope": "resource",
+                    "enum": [
+                        "openAndSave",
+                        "saveOnly",
+                        "manual"
+                    ],
+                    "enumDescriptions": [
+                        "Run dcc32.exe compiler check when opening or saving a Pascal file",
+                        "Run dcc32.exe compiler check only when saving a Pascal file",
+                        "Run dcc32.exe compiler check only when manually triggered"
+                    ],
+                    "description": "Controls when background dcc32.exe compiler checks run in Legacy (Delphi 6) mode"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "delphi.selectConfigFile",
+                "title": "Delphi: Select LSP config file"
+            },
+            {
+                "command": "delphi.checkCurrentFile",
+                "title": "Delphi: Check current file with compiler"
+            },
+            {
+                "command": "delphi.regenRunScript",
+                "title": "Delphi: Regenerate run script for current project"
+            },
+            {
+                "command": "delphi.run",
+                "title": "Delphi: Run current project",
+                "icon": "$(play)"
+            },
+            {
+                "command": "delphi.gxGrep",
+                "title": "Delphi: GX Grep Search",
+                "icon": "$(search)"
+            },
+            {
+                "command": "delphi.gxGrepCurrentUnit",
+                "title": "Delphi: GX Grep in Current Unit & Form (.dfm)"
+            },
+            {
+                "command": "delphi.gxGrepNextMatch",
+                "title": "Delphi: GX Grep Next Match"
+            },
+            {
+                "command": "delphi.gxGrepPrevMatch",
+                "title": "Delphi: GX Grep Previous Match"
+            },
+            {
+                "command": "delphi.toggleFormUnit",
+                "title": "Delphi: Toggle Form/Unit (.pas ↔ .dfm)",
+                "icon": "$(arrow-swap)"
+            }
+        ],
+        "viewsContainers": {
+            "panel": [
+                {
+                    "id": "delphi-gx-grep",
+                    "title": "GX Grep",
+                    "icon": "$(search)"
+                }
+            ]
+        },
+        "views": {
+            "delphi-gx-grep": [
+                {
+                    "type": "webview",
+                    "id": "delphi.gxGrepView",
+                    "name": "GX Grep",
+                    "when": "delphi.isEnabled"
+                }
+            ]
+        },
+        "menus": {
+            "editor/title": [
+                {
+                    "when": "delphi.isEnabled && (resourceLangId == objectpascal || resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)",
+                    "command": "delphi.gxGrep",
+                    "group": "navigation@1"
+                },
+                {
+                    "when": "delphi.isEnabled && (resourceLangId == objectpascal || resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)",
+                    "command": "delphi.toggleFormUnit",
+                    "group": "navigation@2"
+                }
+            ],
+            "editor/title/run": [
+                {
+                    "when": "delphi.isEnabled && resourceLangId == objectpascal",
+                    "command": "delphi.run",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "delphi.isEnabled && (editorLangId == objectpascal || resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)",
+                    "command": "delphi.gxGrepCurrentUnit",
+                    "group": "navigation@1"
+                },
+                {
+                    "when": "delphi.isEnabled && (editorLangId == objectpascal || resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)",
+                    "command": "delphi.toggleFormUnit",
+                    "group": "navigation@2"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "delphi.gxGrep",
+                "key": "alt+shift+s",
+                "when": "delphi.isEnabled && editorTextFocus && (editorLangId == objectpascal || resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)"
+            },
+            {
+                "command": "delphi.toggleFormUnit",
+                "key": "f12",
+                "when": "delphi.isEnabled && editorTextFocus && (resourceExtname == .dfm || resourceExtname == .fmx || resourceExtname == .nfm || resourceExtname == .xfm)"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile && npm test",
+        "publish:vsce": "npx @vscode/vsce publish",
+        "publish:ovsx": "npx ovsx publish",
+        "package": "npx @vscode/vsce package -o out/",
+        "compile": "tsc -b",
+        "pretty": "prettier --write ./src/**/*",
+        "check:types": "tsc --noEmit",
+        "check:format": "prettier --check ./src/**/*",
+        "lint": "eslint src",
+        "test": "npm run compile && mocha \"lib/test/**/*.test.js\"",
+        "check:all": "npm run check:types && npm run check:format && npm run lint && npm test"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^20.19.43",
+        "@types/semver": "^7.8.0",
+        "@types/vscode": "~1.91.0",
+        "@vscode/test-electron": "^3.1.0",
+        "eslint": "^10.11.0",
+        "mocha": "^12.0.3",
+        "prettier": "^3.9.9",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.71.0"
+    },
+    "dependencies": {
+        "semver": "^7.8.5",
+        "vscode-languageclient": "^10.1.2"
+    }
+}
