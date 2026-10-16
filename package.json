@@ -254,7 +254,7 @@
         "vscode:prepublish": "npm run compile && npm test",
         "publish:vsce": "npx @vscode/vsce publish",
         "publish:ovsx": "npx ovsx publish",
-        "package": "npx @vscode/vsce package -o out/",
+        "package": "node -e \"fs.mkdirSync('out', { recursive: true })\" && npx @vscode/vsce package -o out/",
         "compile": "tsc -b",
         "pretty": "prettier --write ./src/**/*",
         "check:types": "tsc --noEmit",
