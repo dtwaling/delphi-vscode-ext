@@ -2,7 +2,7 @@
 
 ## Overview
 
-`delphi-vscode` is a VS Code (and Cursor-compatible) extension providing Embarcadero Delphi language support, project building/running, Legacy Delphi 6 (`dcc32.exe`) diagnostics and navigation, and a GExperts-inspired **GX Grep** search view with companion `.dfm` support.
+`dtdubs-delphi` is a VSCode (and Cursor-compatible) extension providing Embarcadero Delphi language support, project building/running, Legacy Delphi 6 (`dcc32.exe`) diagnostics and navigation, and a GExperts-inspired **GX Grep** search view with companion `.dfm` support.
 
 See [README.md](./README.md) for user-facing features, requirements, and extension settings, and [CHANGELOG.md](./CHANGELOG.md) for release history.
 
@@ -36,15 +36,15 @@ Run all commands from the repository root:
    npm run package
    ```
    - Runs `npx @vscode/vsce package -o out/` (which triggers `vscode:prepublish` → `npm run compile && npm test`).
-   - Outputs `out/delphi-vscode-<version>.vsix`.
+   - Outputs `out/dtdubs-delphi-<version>.vsix`.
    - Install locally via `Extensions: Install from VSIX...` in the Command Palette, or from the CLI:
      ```powershell
-     code --install-extension out/delphi-vscode-<version>.vsix
-     cursor --install-extension out/delphi-vscode-<version>.vsix
+     code --install-extension out/dtdubs-delphi-<version>.vsix
+     cursor --install-extension out/dtdubs-delphi-<version>.vsix
      ```
 
 5. **Release & Marketplace Publishing (`.github/workflows/release.yml`)**
-   - Pushing a version tag matching `v*` (e.g., `git tag v1.2.2 && git push origin main v1.2.2`) or triggering **Release & Publish Extension** via `workflow_dispatch` runs `npm run check:all`, verifies that the tag matches `package.json`, packages `out/delphi-vscode-<version>.vsix`, attaches it to the GitHub Release (using notes from `CHANGELOG.md`), and publishes to:
+   - Pushing a version tag matching `v*` (e.g., `git tag v1.2.2 && git push origin main v1.2.2`) or triggering **Release & Publish Extension** via `workflow_dispatch` runs `npm run check:all`, verifies that the tag matches `package.json`, packages `out/dtdubs-delphi-<version>.vsix`, attaches it to the GitHub Release (using notes from `CHANGELOG.md`), and publishes to:
      - **VS Code Marketplace** (`npx @vscode/vsce publish`) when repository secret `VSCE_PAT` is set (Azure DevOps PAT with `Marketplace -> Manage` scope for publisher `DWaling-eci`).
      - **Open VSX Registry** (`npx ovsx publish`, used by Cursor) when repository secret `OVSX_PAT` is set (Open VSX access token for namespace `DWaling-eci`).
    - Manual CLI publishing is also available via `npm run publish:vsce` and `npm run publish:ovsx`.

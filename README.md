@@ -1,4 +1,4 @@
-# delphi-vscode-ext README
+# dtdubs-delphi README
 
 Delphi extension to allow developer tooling for Delphi in VSCode.
 
@@ -56,7 +56,7 @@ Check out [CHANGELOG](./CHANGELOG.md).
 - [DelphiLSP for VSCode](https://marketplace.visualstudio.com/items?itemName=EmbarcaderoTechnologies.delphilsp)
   - "Reverse engineered" (opened the extension with 7-Zip) some of the code for handling the custom notifications that are needed to be sent to the LSP.
 - [GExperts](https://www.gexperts.org/)
-  - This has been a **long-time** favorite tool I've always used in the Delphi IDEs - their search tool is the inspiration for my GX Grep feature in delphi-vscode.
+  - This has been a **long-time** favorite tool I've always used in the Delphi IDEs - their search tool is the inspiration for my GX Grep feature in dtdubs-delphi.
 
 > [!NOTE]
 > From the original author: This extension was only built to meet my own demand, and published on the off-chance that it might help someone else. There is now over 5K installations however, and I assume most needs are not met for Delphi development at the current state of the extension. Thus, **I encourage you to open a PR for any features you might miss**. I will happily review and add any improvements or features.

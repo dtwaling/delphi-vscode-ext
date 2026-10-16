@@ -1,12 +1,12 @@
 {
-    "name": "delphi-vscode",
-    "publisher": "DTWaling",
+    "name": "dtdubs-delphi",
+    "publisher": "DustinTWaling",
     "repository": {
         "type": "git",
         "url": "https://github.com/dtwaling/delphi-vscode-ext"
     },
-    "displayName": "Delphi",
-    "description": "Delphi support for VSCode",
+    "displayName": "DTDubs Delphi for VSCode",
+    "description": "Delphi support in VSCode for modern Delphi as well as legacy versions. (Requires compiler and SPL binaries for the specific version of Delphi code you intend to work with.)",
     "version": "1.2.1",
     "license": "MIT",
     "engines": {
@@ -254,7 +254,7 @@
         "vscode:prepublish": "npm run compile && npm test",
         "publish:vsce": "npx @vscode/vsce publish",
         "publish:ovsx": "npx ovsx publish",
-        "package": "node -e \"fs.mkdirSync('out', { recursive: true })\" && npx @vscode/vsce package -o out/",
+        "package": "npx @vscode/vsce package -o out/",
         "compile": "tsc -b",
         "pretty": "prettier --write ./src/**/*",
         "check:types": "tsc --noEmit",
